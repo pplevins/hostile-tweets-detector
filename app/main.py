@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from api import router as tweets_router
+from app.api import router as tweets_router
 
 app = FastAPI(
     title="Tweets processor API",

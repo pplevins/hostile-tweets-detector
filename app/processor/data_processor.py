@@ -1,3 +1,4 @@
+import os
 from collections import Counter
 
 import nltk
@@ -6,11 +7,13 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 from app.fetcher import WeaponsFetcher
 
-nltk.download('vader_lexicon')  # Compute sentiment labels
-
 
 class DataProcessor:
     def __init__(self):
+        nltk_dir = "/tmp/nltk_data"
+        os.makedirs(nltk_dir, exist_ok=True)
+        nltk.data.path.append(nltk_dir)
+        nltk.download('vader_lexicon', download_dir=nltk_dir, quiet=True)  # Compute sentiment labels
         self.raw_data = None
         self.processed_data = None
         self.weapons_list = WeaponsFetcher.fetch_weapons_list()
