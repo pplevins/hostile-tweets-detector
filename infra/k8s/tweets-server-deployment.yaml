@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweets-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweets-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tweets-server
+    spec:
+      containers:
+        - image: pplevins/hostile-tweets-detector
+          name: tweets-server
+          env:
+            - name: MONGODB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: tweets-secret
+                  key: MONGODB_URL
+          ports:
+            - containerPort: 8000
+              name: tweets-server
