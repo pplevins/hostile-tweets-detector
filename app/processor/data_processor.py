@@ -13,6 +13,7 @@ class DataProcessor:
     def __init__(self):
         self.raw_data = None
         self.processed_data = None
+        self.weapons_list = WeaponsFetcher.fetch_weapons_list()
 
     def _find_rarest_word(self, tweet_words: list) -> str:
         return Counter(tweet_words).most_common()[-1][0]
@@ -23,14 +24,14 @@ class DataProcessor:
             else "negative" if compound < -0.5 else "neutral"
 
     def _find_weapons(self, tweet_text: str) -> str | None:
-        weapons_list = WeaponsFetcher.fetch_weapons_list()
-        for weapon in weapons_list:
+        for weapon in self.weapons_list:
             if weapon in tweet_text:
                 return weapon
         return None
 
     def set_data(self, raw_data: pd.DataFrame) -> None:
         self.raw_data = raw_data
+        self.raw_data['_id'] = self.raw_data['_id'].apply(lambda x: str(x))
         self.processed_data = raw_data.copy()
         self.processed_data['lower_words'] = (self.processed_data['Text']
                                               .str.replace(r'[^\w\s]+', '', regex=True)
@@ -45,7 +46,11 @@ class DataProcessor:
         self.processed_data['weapons_detected'] = self.processed_data['Text'].apply(
             lambda x: self._find_weapons(x.lower()))
 
+    def set_sentiment(self):
+        self.processed_data['sentiment'] = self.processed_data['Text'].apply(
+            lambda x: self._calculate_text_sentiment(x))
 
-def set_sentiment(self):
-    self.processed_data['sentiment'] = self.processed_data['Text'].apply(
-        lambda x: self._calculate_text_sentiment(x))
+    def clean_and_export_data(self):
+        self.processed_data = self.processed_data.drop(columns=['lower_words'])
+        self.processed_data = self.processed_data.rename(columns={'_id': 'id', 'Text': 'original_text'})
+        return self.processed_data.to_dict('records')
