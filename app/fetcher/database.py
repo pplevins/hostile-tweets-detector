@@ -21,7 +21,7 @@ class Database:
             cls._client = AsyncMongoClient(
                 mongodb_url,
                 server_api=pymongo.server_api.ServerApi(version="1", strict=True, deprecation_errors=True))
-            cls._db = cls._client.soldiersdb
+            cls._db = cls._client.IranMalDB
         return cls._client
 
     @classmethod
